@@ -324,7 +324,7 @@ def E_Guess(EnergyLevelFound, E_guess_try, iteration, First_E_guess):
 
     """
 
-    print('Iteration: ',iteration)
+    #print('Iteration: ',iteration)
 
     #If it is the first time, return the first energy level of the quantum harmonic oscillator
     if iteration == 1:
@@ -370,9 +370,9 @@ def E_Guess(EnergyLevelFound, E_guess_try, iteration, First_E_guess):
     elif not E_level_smaller == None:
         E_guess = E_guess_try[E_level_smaller][1] * 2
 
-    print('E_level_guess:', E_level_guess )
-    print('E_level_bigger: ', E_level_bigger)
-    print('E_level_smaller: ', E_level_smaller)
+    #print('E_level_guess:', E_level_guess )
+    #print('E_level_bigger: ', E_level_bigger)
+    #print('E_level_smaller: ', E_level_smaller)
 
     return E_guess
 
