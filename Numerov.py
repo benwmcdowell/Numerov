@@ -46,7 +46,7 @@ import numpy as np
 #Imports the Fct_Numerov module which defines many functions that will be used in this script
 import Fct_Numerov
 
-def Numerov(quiet=True):
+def Numerov(n,x,potential,quiet=True):
     ############################
     # 1) Initializing parameters
     ############################
@@ -54,9 +54,12 @@ def Numerov(quiet=True):
     #Indication :Theses parameters determine the precision of the calculations and can be adjust as wanted
     
     #Setting the range from wich we will evaluate the potential and the number of division we will use to discretise the potential
-    x_V_min = -13
-    x_V_max = 13
-    nbr_division_V = 800000
+    #x_V_min = -13
+    #x_V_max = 13
+    x_V_min=np.min(x)
+    x_V_max=np.max(x)
+    #nbr_division_V = 800000
+    nbr_division_V=len(x)
     
     #Setting the number of division from the initial point in the classical forbidden zone x_0 to the ending point x_max
     nbr_division = 5000
@@ -73,33 +76,35 @@ def Numerov(quiet=True):
     ###########################################################################
     
     # i) Energy levels
-    E_level = int(input('Which first energy levels do you want (enter an integer) : '))
+    #E_level = int(input('Which first energy levels do you want (enter an integer) : '))
+    E_level=n
     E_lvl = list(range(0,E_level))
     
     # ii) Potential
-    potential=input('Potential (as a fonction of x): ')
+    #potential=input('Potential (as a fonction of x): ')
     
     #Verify if the potential expression is correct (Syntax, bounadries value and "global concavity")
     i=1
     while i == 1:
         #Changes the expression to be sure it matches python mathematical syntax
-        potential = Fct_Numerov.ModifyPotential(potential)
+        #potential = Fct_Numerov.ModifyPotential(potential)
     
         #Verify if the potential expression has any syntax error
-        potential = Fct_Numerov.VerifySyntaxPotential(potential)
+        #potential = Fct_Numerov.VerifySyntaxPotential(potential)
     
         #Verify if the potential seems to respect the boundaries conditions
-        potential = Fct_Numerov.VerifyLimitsPotential(potential)
+        #potential = Fct_Numerov.VerifyLimitsPotential(potential)
     
         #Convert the potential into a numpy array (see the settings for this potential array in the "Initializing parameters section")
-        EvaluatePotential = np.vectorize(Fct_Numerov.EvaluateOnePotential)
+        #EvaluatePotential = np.vectorize(Fct_Numerov.EvaluateOnePotential)
         DivisionPotential = (x_V_max - x_V_min) / nbr_division_V
-        PositionPotential = np.arange(x_V_min,x_V_max,DivisionPotential)
+        PositionPotential = x
     
-        PotentialArray = EvaluatePotential(PositionPotential,potential)
+        PotentialArray = potential
+        potential-=np.min(potential)
     
         #Translate the potential
-        PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
+        #PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
     
         #Recenters this new potential array for more accuracy
         #PotentialArray,PositionPotential = Fct_Numerov.RecenterPotential(PotentialArray,PositionPotential)
@@ -121,8 +126,7 @@ def Numerov(quiet=True):
             else :
                 potential = potential2
     
-    
-    ###################################
+    ###################################6
     # 3) Numerov algorithm
     ###################################
     
@@ -159,7 +163,7 @@ def Numerov(quiet=True):
         ###############################################################
         # iii) Calculate the wave fonction for the guessed energy value
     
-        WaveFunction = Fct_Numerov.WaveFunctionNumerov(potential, E_guess, nbr_division, Initial_augmentation, Position_min, Position_max)
+        WaveFunction = Fct_Numerov.WaveFunctionNumerov(potential, E_guess, nbr_division, Initial_augmentation, Position_min, Position_max, PositionPotential)
     
         ###############################################################################
         # iv) Determine the number of nodes in the wave fonction and set the tolerance
@@ -215,3 +219,17 @@ def Numerov(quiet=True):
     
     #Draw all the wave functions
     Fct_Numerov.DrawWaveFunction(y_max, min_x, max_x, WavPlot, WavLines, EnergyLines, PositionPotential, PotentialArray)
+    
+    #convert Hartree to eV
+    #for i in range(len(EnergyLevelFound)):
+    #    EnergyLevelFound[i]*=27.2114
+        
+    #PositionPotential*=0.5291772108
+    #newWavPlot=[]
+    #for i in range(len(WavPlot)):
+    #    newWavPlot.append([])
+    #    newWavPlot[i].append(np.array(WavPlot[i][0])*0.5291772108)
+    #    newWavPlot[i].append(np.array(WavPlot[i][1]))
+    #WavPlot=newWavPlot
+    
+    return PositionPotential, PotentialArray, WavPlot, EnergyLevelFound

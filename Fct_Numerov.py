@@ -194,7 +194,7 @@ def VerifyConcavity(PotentialArray, First_E_guess):
     i = 1
     #Continue while it doesn't find meeting points
     while i == 1:
-        print('First Energy guess:', First_E_guess)
+        #print('First Energy guess:', First_E_guess)
         index_min=list()
         index_max=list()
 
@@ -217,8 +217,8 @@ def VerifyConcavity(PotentialArray, First_E_guess):
                         index_max.append(i)
 
             #Defines the concavity value depending on
-            print('index max: ',index_max)
-            print('index_min: ',index_min)
+            #print('index max: ',index_max)
+            #print('index_min: ',index_min)
 
             if (max(index_max) > max(index_min)) and (min(index_max) > min(index_min)):
                 concavity = 'positive'
@@ -282,7 +282,7 @@ def TranslationPotential(PositionPotential, PotentialArray):
     #PositionPotential = PositionPotential - trans_x
 
     #print('trans_x; ',trans_x)
-    print('trans_y; ',trans_y)
+    #print('trans_y; ',trans_y)
 
     return PositionPotential, PotentialArray
 
@@ -292,9 +292,7 @@ def TranslatePotential(potential,trans_x,trans_y):
     #potential = potential.replace('x','(x+' + str(trans_x) + ')')
 
     #y translation
-    potential = potential + '-' +  str(trans_y)
-
-    print(potential)
+    potential-=np.min(potential)
 
     return potential
 
@@ -410,18 +408,18 @@ def MeetingPointsPotential(E_guess, PotentialArray, PositionPotential, E_guess_t
             if (PotentialArray[i] < E_guess and PotentialArray[i+1] > E_guess) or (PotentialArray[i] > E_guess and PotentialArray[i+1] < E_guess) or (PotentialArray[i] == E_guess):
                 #And filter them
                 if (MeetingPoints[0] == None) or (PositionPotential[i] < MeetingPoints[0]):
-                    print('index rencontre min: ',i)
+                    #print('index rencontre min: ',i)
                     MeetingPoints[0] = PositionPotential[i]
                 elif (MeetingPoints[1] == None) or (PositionPotential[i] > MeetingPoints[1]):
                     MeetingPoints[1] = PositionPotential[i]
-                    print('index renccontre max: ', i)
+                    #print('index renccontre max: ', i)
 
         #If we have not found at least two meeting points, then make a new smaller energy guess and repeat for at most ten times
         if (MeetingPoints[0] == None) or (MeetingPoints[1] == None):
-            print('Restting the energy guess!\n')
+            #print('Restting the energy guess!\n')
             E_guess = (E_guess + max([k for j,k in E_guess_try.values() if k < E_guess]))/2
             iteration += 1
-            print('E_guess: ',E_guess)
+            #print('E_guess: ',E_guess)
             if iteration > 10:
                 end_program = True
                 break
@@ -461,7 +459,7 @@ def DetermineMinAndMax(MeetingPoints):
 #######################################
 # iii) Calculate the wave function
 
-def WaveFunctionNumerov(potential, E_guess, nbr_division, Initial_augmentation, Position_min, Position_max):
+def WaveFunctionNumerov(potential, E_guess, nbr_division, Initial_augmentation, Position_min, Position_max, PositionPotential):
     """This function calculates the wave function values depending on the x coordinate by using the Numerov method. The function returns a list that contains tuple with the x coordinate and
     the wave function value.
 
@@ -490,23 +488,23 @@ def WaveFunctionNumerov(potential, E_guess, nbr_division, Initial_augmentation, 
     WaveFunction.append((float(Position_min+Division), Initial_augmentation))
 
     #Defing an array and an index to use in the for loop
-    index = 0
     PositionArray = np.arange(Position_min, Position_max, Division)
-
+    index=0
+    index_shift=np.argmin(np.abs(PositionPotential-PositionArray[0]))
     #Calculating the wave function for other values
     for i in np.arange(Position_min + (2 * Division), Position_max, Division):
         #Evaluating the potential
         #For V_i+1
-        x = i
-        V_plus1 = eval(potential)
+        j=np.argmin(np.abs(PositionPotential-i))
+        V_plus1 = potential[j]
 
         #For V_i
-        x = PositionArray[index+1]
-        V = eval(potential)
+        j=np.argmin(np.abs(PositionPotential-(i-Division)))
+        V = potential[j]
 
         #For V_i-1
-        x = PositionArray[index]
-        V_minus1 = eval(potential)
+        j=np.argmin(np.abs(PositionPotential-(i-2*Division)))
+        V_minus1 = potential[j]
 
         #Setting the k**2 values ( where k**2 = (2m/HBar)*(E-V(x)) )
         k_2_plus1 = 2 * (E_guess - V_plus1)
@@ -589,7 +587,7 @@ def VerifyTolerance(WaveFunction, Tolerance, E_guess, E_guess_try, NumberOfNodes
 
     # i) Checks if the last value of the wave function respects the tolerance
     VerificationTolerance = 'yes' if np.absolute(WaveFunction[-1][1]) < Tolerance else 'no'
-    print('Last value Wave Function: ', WaveFunction[-1][1])
+    #print('Last value Wave Function: ', WaveFunction[-1][1])
 
     # ii) Checks if the energy guess doesn't change a lot
     try:
