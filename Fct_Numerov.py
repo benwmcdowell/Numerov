@@ -679,7 +679,7 @@ def SaveEnergy(NumberOfNodes, E_guess, E_guess_try):
 # i) ouput the energy levels
 def OuputEnergy(EnergyLevelFound):
     for i,Energy in EnergyLevelFound.items():
-        print('Energy level', i, ':', Energy)
+        print('Energy level', i, ':', Energy, ' eV')
 
 ############################
 # ii) Draw the figure
@@ -812,7 +812,7 @@ def DrawWaveFunction(y_max, min_x, max_x, WavPlot, WavLines, EnergyLines, Positi
     # iv) Sets differents aesthetic components
 
     #For the wave function set the title and the axis title
-    Wav.set_xlabel(r'x ($a_0$)')
+    Wav.set_xlabel(r'x / nm')
     Wav.set_title('Wave Function',fontsize=14)
 
     #Verify if the labels reappear multiple times and set legend for the wave function
@@ -830,8 +830,8 @@ def DrawWaveFunction(y_max, min_x, max_x, WavPlot, WavLines, EnergyLines, Positi
         Wav.text(((max_x - min_x) * 0.04) + min_x, WavLines[i][1][0] - (0.25 * (y_max/(len(EnergyLines)+2))), r'$\Psi_{%s}(x)$'%(i))
 
     #For the energy levels set the title, the axis title and the legend
-    En.set_xlabel(r'x ($a_0$)')
-    En.set_ylabel('Energy (Hartree)')
+    En.set_xlabel(r'x / nm')
+    En.set_ylabel('Energy / eV')
     En.set_title('Energy levels',fontsize=14)
     leg2 = En.legend(loc='upper left', fontsize='x-small')
     leg2.get_frame().set_alpha(1)
