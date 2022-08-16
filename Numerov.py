@@ -103,11 +103,12 @@ def Numerov(n,x,potential,quiet=True,rescale=True):
         if rescale:
             PositionPotential*=18.8973
     
-        PotentialArray = potential
         potential-=np.min(potential)
         #converts joule potential to hartree
         if rescale:
             potential*=2.294e17
+            
+        PotentialArray = potential
     
         #Translate the potential
         #PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
@@ -216,16 +217,20 @@ def Numerov(n,x,potential,quiet=True,rescale=True):
     ######################################
     
     #rescale energy values from hartree to eV
-    for i in range(len(EnergyLevelFound)):
+    for i in EnergyLevelFound.keys():
         EnergyLevelFound[i]*=27.2114
         
     #converts bohr radii to nm
     PositionPotential/=18.8973
-    newWaveFunctionFound={}
-    for i in range(len(WaveFunctionFound)):
-        newWaveFunctionFound.update({i:(WaveFunctionFound[i][0]/18.8973,WaveFunctionFound[i][1])})
-    WaveFunctionFound=newWaveFunctionFound
-    
+    for i in WaveFunctionFound.keys():
+        tempvar=np.array(WaveFunctionFound[i])
+        tempvar[:,0]/=18.8973
+        WaveFunctionFound[i]=tuple(tempvar)
+        
+    #converts potential from hartree to eV
+    potential*=27.2114
+    PotentialArray*=27.2114
+        
     # i) Energy levels
     Fct_Numerov.OuputEnergy(EnergyLevelFound)
     
