@@ -46,7 +46,7 @@ import numpy as np
 #Imports the Fct_Numerov module which defines many functions that will be used in this script
 import Fct_Numerov
 
-def Numerov(n,x,potential,quiet=True):
+def Numerov(n,x,potential,quiet=True,rescale=True):
     ############################
     # 1) Initializing parameters
     ############################
@@ -99,9 +99,15 @@ def Numerov(n,x,potential,quiet=True):
         #EvaluatePotential = np.vectorize(Fct_Numerov.EvaluateOnePotential)
         DivisionPotential = (x_V_max - x_V_min) / nbr_division_V
         PositionPotential = x
+        #converts nm input to bohr radii
+        if rescale:
+            PositionPotential*=18.8973
     
         PotentialArray = potential
         potential-=np.min(potential)
+        #converts joule potential to hartree
+        if rescale:
+            potential*=2.294e17
     
         #Translate the potential
         #PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
@@ -178,8 +184,7 @@ def Numerov(n,x,potential,quiet=True):
         VerificationTolerance = Fct_Numerov.VerifyTolerance(WaveFunction,Tolerance,E_guess,E_guess_try,NumberOfNodes)
     
         if VerificationTolerance == 'yes':
-            if not quiet:
-                print('Niveau d\'energie trouve!!\n\n')
+            print('Energy level found')
             NumberOfNodesCorrected = Fct_Numerov.CorrectNodeNumber(NumberOfNodes,PositionNodes,x_max,E_guess,E_guess_try)
             EnergyLevelFound.update({NumberOfNodesCorrected:E_guess})
             WaveFunctionFound.update({NumberOfNodesCorrected:WaveFunction})
@@ -210,6 +215,17 @@ def Numerov(n,x,potential,quiet=True):
     # 4) Output (energy levels and figure)
     ######################################
     
+    #rescale energy values from hartree to eV
+    for i in range(len(EnergyLevelFound)):
+        EnergyLevelFound[i]*=27.2114
+        
+    #converts bohr radii to nm
+    PositionPotential/=18.8973
+    newWaveFunctionFound={}
+    for i in range(len(WaveFunctionFound)):
+        newWaveFunctionFound.update({i:(WaveFunctionFound[i][0]/18.8973,WaveFunctionFound[i][1])})
+    WaveFunctionFound=newWaveFunctionFound
+    
     # i) Energy levels
     Fct_Numerov.OuputEnergy(EnergyLevelFound)
     
@@ -219,17 +235,5 @@ def Numerov(n,x,potential,quiet=True):
     
     #Draw all the wave functions
     Fct_Numerov.DrawWaveFunction(y_max, min_x, max_x, WavPlot, WavLines, EnergyLines, PositionPotential, PotentialArray)
-    
-    #convert Hartree to eV
-    #for i in range(len(EnergyLevelFound)):
-    #    EnergyLevelFound[i]*=27.2114
-        
-    #PositionPotential*=0.5291772108
-    #newWavPlot=[]
-    #for i in range(len(WavPlot)):
-    #    newWavPlot.append([])
-    #    newWavPlot[i].append(np.array(WavPlot[i][0])*0.5291772108)
-    #    newWavPlot[i].append(np.array(WavPlot[i][1]))
-    #WavPlot=newWavPlot
     
     return PositionPotential, PotentialArray, WavPlot, EnergyLevelFound
