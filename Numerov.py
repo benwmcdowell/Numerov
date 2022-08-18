@@ -46,6 +46,39 @@ import numpy as np
 #Imports the Fct_Numerov module which defines many functions that will be used in this script
 import Fct_Numerov
 
+#d is the tip-sample distance in nm
+#V is the voltage bias in eV
+#Vmin is the minimum potential of the substrate periodic potential in eV
+#zm is the range of the potential set to a constant value near the sumple interface (nm)
+def build_FER_potential_no_dielectric(n,d,phi,V,zm):
+    d*=1e-9 #convert nm to m
+    zm*=1e-9 #convert nm to m
+    V*=1.60218e-19 #eV to J
+    phi*=1.60218e-19 #eV to J
+    e0=8.8541878128e-12 #F/m
+    e=1.60217663e-19
+    
+    x=np.linspace(0,d,n)
+    field_pot=phi-V*x/d
+    image_pot_sub=-e**2/4/x/e0
+    image_pot_tip=-e**2/4/abs(d-x)/e0
+    pot=field_pot+image_pot_sub+image_pot_tip
+    pot=np.nan_to_num(pot)
+    
+    pot*=np.heaviside(x-zm,1)
+    print(pot)
+    Vmin=image_pot_sub[np.argmin(abs(x-zm))]
+    pot+=np.heaviside((x-zm)*-1,0)*image_pot_sub[np.argmin(abs(x-zm))]
+    print(pot)
+    for i in range(len(x)):
+        if pot[i]<Vmin:
+            max_index=i
+            break
+    
+    #convert x back to nm
+    x*=1e9
+    return x[:max_index],pot[:max_index]
+
 def Numerov(n,x,potential,quiet=True,rescale=True):
     ############################
     # 1) Initializing parameters
