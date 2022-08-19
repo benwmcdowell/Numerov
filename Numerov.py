@@ -59,9 +59,9 @@ def build_FER_potential_no_dielectric(n,d,phi,V,zm):
     e=1.60217663e-19
     
     x=np.linspace(0,d,n)
-    field_pot=phi-V*x/d
-    image_pot_sub=-e**2/4/x/e0
-    image_pot_tip=-e**2/4/abs(d-x)/e0
+    field_pot=phi-V*(d-x)/d
+    image_pot_sub=-e**2/4/x/e0/np.pi
+    image_pot_tip=-e**2/4/abs(d-x)/e0/np.pi
     pot=field_pot+image_pot_sub+image_pot_tip
     pot=np.nan_to_num(pot)
     
@@ -160,7 +160,6 @@ def Numerov(n,x,potential,quiet=True,rescale=True):
     #    else :
     #        potential = potential2
     First_E_guess=np.max(potential)-0.5
-    print(First_E_guess)
     
     ###################################6
     # 3) Numerov algorithm
