@@ -191,9 +191,9 @@ def VerifyConcavity(PotentialArray, First_E_guess):
 
     """
 
-    i = 1
+    j = 1
     #Continue while it doesn't find meeting points
-    while i == 1:
+    while j == 1:
         #print('First Energy guess:', First_E_guess)
         index_min=list()
         index_max=list()
@@ -231,7 +231,8 @@ def VerifyConcavity(PotentialArray, First_E_guess):
 
         #If it is able to compare them, exit the loop
         else:
-            i = 0
+            j = 0
+            concavity='negative'
 
     return concavity,First_E_guess
 

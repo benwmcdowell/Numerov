@@ -66,10 +66,8 @@ def build_FER_potential_no_dielectric(n,d,phi,V,zm):
     pot=np.nan_to_num(pot)
     
     pot*=np.heaviside(x-zm,1)
-    print(pot)
     Vmin=image_pot_sub[np.argmin(abs(x-zm))]
     pot+=np.heaviside((x-zm)*-1,0)*image_pot_sub[np.argmin(abs(x-zm))]
-    print(pot)
     for i in range(len(x)):
         if pot[i]<Vmin:
             max_index=i
@@ -117,54 +115,52 @@ def Numerov(n,x,potential,quiet=True,rescale=True):
     #potential=input('Potential (as a fonction of x): ')
     
     #Verify if the potential expression is correct (Syntax, bounadries value and "global concavity")
-    i=1
-    while i == 1:
-        #Changes the expression to be sure it matches python mathematical syntax
-        #potential = Fct_Numerov.ModifyPotential(potential)
-    
-        #Verify if the potential expression has any syntax error
-        #potential = Fct_Numerov.VerifySyntaxPotential(potential)
-    
-        #Verify if the potential seems to respect the boundaries conditions
-        #potential = Fct_Numerov.VerifyLimitsPotential(potential)
-    
-        #Convert the potential into a numpy array (see the settings for this potential array in the "Initializing parameters section")
-        #EvaluatePotential = np.vectorize(Fct_Numerov.EvaluateOnePotential)
-        DivisionPotential = (x_V_max - x_V_min) / nbr_division_V
-        PositionPotential = x
-        #converts nm input to bohr radii
-        if rescale:
-            PositionPotential*=18.8973
-    
-        potential-=np.min(potential)
-        #converts joule potential to hartree
-        if rescale:
-            potential*=2.294e17
-            
-        PotentialArray = potential
-    
-        #Translate the potential
-        #PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
-    
-        #Recenters this new potential array for more accuracy
-        #PotentialArray,PositionPotential = Fct_Numerov.RecenterPotential(PotentialArray,PositionPotential)
-    
-        #Defines the initial Energy guess that will be used to verify the concavity
-        First_E_guess = Fct_Numerov.GetFirstEnergyGuess(PotentialArray)
-    
-        #Verify the concavity of the potential
-        concavity,First_E_guess = Fct_Numerov.VerifyConcavity(PotentialArray, First_E_guess)
-    
-        #If it is correct exit the loop
-        if concavity == 'positive':
-            i = 0
-        #Else ask for a new one or take this one anyway
-        elif concavity == 'negative':
-            potential2 = input('The concavity of the potential isn\'t correct enter a new one (or "O" to overule): ')
-            if potential2 == 'O':
-                i = 0
-            else :
-                potential = potential2
+    #Changes the expression to be sure it matches python mathematical syntax
+    #potential = Fct_Numerov.ModifyPotential(potential)
+
+    #Verify if the potential expression has any syntax error
+    #potential = Fct_Numerov.VerifySyntaxPotential(potential)
+
+    #Verify if the potential seems to respect the boundaries conditions
+    #potential = Fct_Numerov.VerifyLimitsPotential(potential)
+
+    #Convert the potential into a numpy array (see the settings for this potential array in the "Initializing parameters section")
+    #EvaluatePotential = np.vectorize(Fct_Numerov.EvaluateOnePotential)
+    DivisionPotential = (x_V_max - x_V_min) / nbr_division_V
+    PositionPotential = x
+    #converts nm input to bohr radii
+    if rescale:
+        PositionPotential*=18.8973
+    potential-=np.min(potential)
+    #converts joule potential to hartree
+    if rescale:
+        potential*=2.294e17
+    PotentialArray = potential
+
+    #Translate the potential
+    #PositionPotential,PotentialArray = Fct_Numerov.TranslationPotential(PositionPotential, PotentialArray)
+
+    #Recenters this new potential array for more accuracy
+    #PotentialArray,PositionPotential = Fct_Numerov.RecenterPotential(PotentialArray,PositionPotential)
+
+    #Defines the initial Energy guess that will be used to verify the concavity
+    #First_E_guess = Fct_Numerov.GetFirstEnergyGuess(PotentialArray)
+
+    #Verify the concavity of the potential
+    #concavity,First_E_guess = Fct_Numerov.VerifyConcavity(PotentialArray, First_E_guess)
+
+    #If it is correct exit the loop
+    #if concavity == 'positive':
+    #    i = 0
+    #Else ask for a new one or take this one anyway
+    #elif concavity == 'negative':
+    #    potential2 = input('The concavity of the potential isn\'t correct enter a new one (or "O" to overule): ')
+    #    if potential2 == 'O':
+    #        i = 0
+    #    else :
+    #        potential = potential2
+    First_E_guess=np.max(potential)-0.5
+    print(First_E_guess)
     
     ###################################6
     # 3) Numerov algorithm
