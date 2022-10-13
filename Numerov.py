@@ -50,15 +50,19 @@ import Fct_Numerov
 #V is the voltage bias in eV
 #Vmin is the minimum potential of the substrate periodic potential in eV
 #zm is the range of the potential set to a constant value near the sumple interface (nm)
-def build_FER_potential_no_dielectric(n,d,phi,V,zm):
+def build_FER_potential_no_dielectric(n,zmin,w,Vg,V0,d,phi,V,zm):
     d*=1e-9 #convert nm to m
     zm*=1e-9 #convert nm to m
+    zmin*=1e-9 #convert nm to m
+    w*=1e-9 #convert nm to m
+    Vg*=1.60218e-19 #eV to J
     V*=1.60218e-19 #eV to J
+    V0*=1.60218e-19 #eV to J
     phi*=1.60218e-19 #eV to J
     e0=8.8541878128e-12 #F/m
     e=1.60217663e-19
     
-    x=np.linspace(0,d,n)
+    x=np.linspace(-zmin,d,n)
     field_pot=phi-V*(d-x)/d
     image_pot_sub=-e**2/4/x/e0/np.pi
     image_pot_tip=-e**2/4/abs(d-x)/e0/np.pi
@@ -67,15 +71,23 @@ def build_FER_potential_no_dielectric(n,d,phi,V,zm):
     
     pot*=np.heaviside(x-zm,1)
     Vmin=image_pot_sub[np.argmin(abs(x-zm))]
-    pot+=np.heaviside((x-zm)*-1,0)*image_pot_sub[np.argmin(abs(x-zm))]
+    pot+=np.heaviside((x-zm)*-1,0)*(-V0-Vg)
     for i in range(len(x)):
-        if pot[i]<Vmin:
+        if pot[i]<(V0-Vg):
             max_index=i
             break
     
+    pot*=np.heaviside(x,1)
+    bulk_pot=-Vg*np.cos(2*np.pi*x/w)-V0
+    pot[:np.argmin(abs(x))+1]+=bulk_pot[:np.argmin(abs(x))+1]
+    
+    for i in range(len(x)):
+        if pot[i]<(-V0-Vg):
+            pot[i]=(-V0-Vg)
+    
     #convert x back to nm
     x*=1e9
-    return x[:max_index],pot[:max_index]
+    return x,pot
 
 def Numerov(n,x,potential,quiet=True,rescale=True):
     ############################
@@ -159,7 +171,7 @@ def Numerov(n,x,potential,quiet=True,rescale=True):
     #        i = 0
     #    else :
     #        potential = potential2
-    First_E_guess=np.max(potential)-0.5
+    First_E_guess=(np.max(potential)-np.min(potential))/2
     
     ###################################6
     # 3) Numerov algorithm
